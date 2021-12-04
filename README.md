@@ -1,3 +1,2 @@
-hello 🔥🥵👞😩
-this is meowny 🐈😶‍🌫️
-Angel Xu, Angel Liu, Jennifer Shan
+Meowny
+Angel Liu, Angel Xu, Jennifer Shan
