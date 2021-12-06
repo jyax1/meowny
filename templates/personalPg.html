@@ -1,0 +1,53 @@
+<!-- Angel Liu, Angel Xu, Jennifer Shan -->
+<!-- personalPg.html -->
+
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<h1>Welcome to {{username}}'s personal page! :></h1>
+
+<h2>Please Enter Your Spendings For last Week In CATegories ฅ•ω•ฅ</h2>
+
+<form method=post action="">
+
+    <fieldset>
+    <legend>Spending Data</legend>
+    <table>
+    <tr><td><label for="food" accesskey="1">(1) Food Spending:</label></td>
+        <td><input id="food" type="number" step="0.1" name="food"></td></tr>
+    <tr><td><label for="clothing" accesskey="2">(2) Clothing Spending:</label></td>
+        <td><input id="clothing" type="number" step="0.1" name="clothing"></td></tr>
+    <tr><td><label for="transp" accesskey="3">(3) Transportation Spending:</label></td>
+        <td><input id="transp" type="number" step="0.1" name="transp"></td></tr>
+    <tr><td><label for="entert" accesskey="4">(4) Entertainment (purely for happiness: game, toy, party...) Spending:</label></td>
+        <td><input id="entert" type="number" step="0.1" name="entert"></td></tr>
+    <tr><td><label for="personal" accesskey="5">(5) Personal (cosmetics, subscriptions...) Spending:</label></td>
+        <td><input id="personal" type="number" step="0.1" name="personal"></td></tr>
+    <tr><td><label for="miscel" accesskey="6">(6) Miscellaneous Spending:</label></td>
+        <td><input id="miscel" type="number" step="0.1" name="miscel"></td></tr>
+    </table>
+    </fieldset>
+
+    <p> <input type='submit' value='Submit spendings'> </p> 
+
+</form>
+
+<h2>View Your Spending History Below ฅ•ω•ฅ: </h2>
+
+<p><label for="data"></label>
+{% for data in dataList %}
+    <li>Entry at {{data.dataTime}}
+        records $ spent in the following area:
+        food: {{data.food_spending}},
+        clothing: {{data.clothing_spending}},
+        transportation: {{data.transp_spending}},
+        entertainment: {{data.entert_spending}},
+        personal expenses: {{data.personal_spending}},
+        miscellaneous: {{data.miscel_spending}}</li>
+{%endfor%} 
+</p>
+
+<button> <a href="{{ url_for('logout') }}">logout</a> </button> 
+
+{% endblock %}

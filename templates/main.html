@@ -1,0 +1,18 @@
+<!-- Angel Liu, Angel Xu, Jennifer Shan -->
+<!-- main.html -->
+
+{% extends "base.html" %}
+
+{% block main_content %}
+<h1>Welcome to Meowny!</h1>
+<p>Please Log in or <a href="{{ url_for('join') }}">sign up</a> if you don't have an account.</p>
+
+<form method="POST" action=""> 
+    <label for="username"> your name: </label>
+    <input type="text" name="username">
+    <label for="password"> your password: </label>
+    <input type="text" name="password">
+    <input type="submit">
+</form>
+
+{% endblock %}
