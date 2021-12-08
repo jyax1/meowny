@@ -5,9 +5,10 @@
 
 {% block main_content %}
 
-<h1>Welcome to {{username}}'s personal page! :></h1>
+<h1>Welcome to {{username}}'s personal page! Your current spending goal is: {{goal}}</h1>
+<p>Click here to <a href="{{ url_for('update', username = username) }}">update your goal.</a></p>
 
-<h2>Please Enter Your Spendings For last Week In CATegories ฅ•ω•ฅ</h2>
+<h2>Please Enter Your Spendings In CATegories ฅ•ω•ฅ</h2>
 
 <form method=post action="">
 
@@ -34,6 +35,16 @@
 </form>
 
 <h2>View Your Spending History Below ฅ•ω•ฅ: </h2>
+<!-- <form method=POST action="">
+    <label for="menu-time">Select a time period of your history:</label>
+    <select id="menu-tt" name="menu-tt">
+      <option value="none">Choose One</option>
+      {% for movie in movies %}
+        <option value={{movie.tt}}>{{movie.title}}</option>
+      {% endfor %}
+    </select>
+    <input type="submit" name="submit-btn" value="Choose">
+</form> -->
 
 <p><label for="data"></label>
 {% for data in dataList %}
@@ -44,7 +55,8 @@
         transportation: {{data.transp_spending}},
         entertainment: {{data.entert_spending}},
         personal expenses: {{data.personal_spending}},
-        miscellaneous: {{data.miscel_spending}}</li>
+        miscellaneous: {{data.miscel_spending}}
+        total: {{data.total_spending}}</li>
 {%endfor%} 
 </p>
 

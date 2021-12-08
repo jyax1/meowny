@@ -32,6 +32,7 @@ def insert(aid, data):
        spendings from all categories
     '''
     now = datetime.now()
+    year_and_weekNum = str(now.year) + now.strftime("%U")
     foodData = data['food']
     clothingData = data['clothing']
     transpData = data['transp'] 
@@ -39,16 +40,20 @@ def insert(aid, data):
     personalData = data['personal'] 
     miscelData = data['miscel'] 
 
+    total_spending = (float(foodData) + float(clothingData) + float(transpData) +
+                    float(entertData) + float(personalData) + float(miscelData))
+
     conn = dbi.connect()
     curs = dbi.dict_cursor(conn)
-    curs.execute('''insert into dataEntry (aid, dataTime, food_spending,
-                    clothing_spending, transp_spending, entert_spending,
-                    personal_spending, miscel_spending) 
-                    values (%s,%s,%s,%s,%s,%s,%s,%s)''',
-                    [aid, now, foodData, clothingData, transpData,
-                    entertData, personalData, miscelData])
+    curs.execute('''insert into dataEntry (aid, dataTime, year_and_weekNum, 
+                    food_spending, clothing_spending, transp_spending, 
+                    entert_spending, personal_spending, miscel_spending, 
+                    total_spending) 
+                    values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)''',
+                    [aid, now, year_and_weekNum, foodData, clothingData, 
+                    transpData, entertData, personalData, miscelData, 
+                    total_spending])
     conn.commit()
-    return
 
 # main page
 @app.route('/', methods=["GET", "POST"])
@@ -103,6 +108,7 @@ def join():
         username = request.form.get('username')
         passwd1 = request.form.get('password1')
         passwd2 = request.form.get('password2')
+        goal = request.form.get('goal')
         if passwd1 != passwd2:
             flash('passwords do not match')
             return redirect( url_for('index'))
@@ -114,9 +120,9 @@ def join():
         curs = dbi.dict_cursor(conn)
         # store the information into a new row of the table
         try:
-            curs.execute('''INSERT INTO user(aid,name,password)
-                            VALUES(null,%s,%s)''',
-                        [username, stored])
+            curs.execute('''INSERT INTO user(aid,name,password,goal)
+                            VALUES(null,%s,%s,%s)''',
+                        [username, stored,goal])
             conn.commit()
         except Exception as err:
         # if username is taken, redirect to the login page
@@ -147,9 +153,17 @@ def user(username):
     except Exception as err:
         flash('There is an error '+str(err))
         return redirect(url_for('index'))
+
+    conn = dbi.connect()
+    goal = queries.getGoal(conn,aid)
+    dataList = queries.dataEntryGivenAID(conn, aid)
+
     if request.method == 'GET': 
+        conn = dbi.connect()
+        dataList = queries.dataEntryGivenAID(conn, aid)
         return render_template('personalPg.html', title='inserting spendings',
-                                    username = username)
+                                username = username, goal = goal,
+                                dataList = dataList)
     else:
         try:
             data = dict(request.form)
@@ -157,22 +171,96 @@ def user(username):
                 flash('please submit spendings')
                 raise Exception
             insert(aid, data)
-            flash('thank you for submitting your weekly spendings')
             conn = dbi.connect()
             dataList = queries.dataEntryGivenAID(conn, aid)
+            flash('thank you for submitting your weekly spendings')
             return render_template('personalPg.html', title='inserting spendings',
-                                    username = username, dataList = dataList)
+                                    username = username, dataList = dataList,
+                                    goal = goal)
         except Exception as err:
             flash('form submission incomplete')
             return render_template('personalPg.html', title='inserting spendings',
                                     username = username)
 
-@app.route('/commStats/')
+@app.route('/update/<username>', methods=['GET','POST'])
+def update(username):
+    '''Display a form with existing data to update movies 
+       and implement queries to update the new movie
+    '''
+    try:
+        # get the user data if logged in
+        if 'username' in session:
+            username = session['username']
+            aid = session['aid']
+        # redirect to login if no session data found
+        else:
+            flash('You are not logged in. Please log in or sign up!')
+            return redirect(url_for('index'))
+    except Exception as err:
+        flash('There is an error '+str(err))
+        return redirect(url_for('index'))
+
+    if request.method == 'GET':
+        return render_template('update.html',
+                               method=request.method,
+                               username = username)
+    elif request.method == 'POST':
+        # extract the data entered
+        newGoal = request.form.get('goal')
+        conn = dbi.connect()
+        queries.updateGoal(conn,aid,newGoal)
+        flash('Your goal was updated successfully')
+        return redirect(url_for('update', 
+                        username = username))
+
+@app.route('/commStats/', methods=['GET','POST'])
 def commStats():
-    # to be implemented
     # will include average, max, min of community spendings for each catergory,
     # the percentile the user is in, and hopefully some graphs
-    return render_template('commStats.html',title='Hello')
+    conn = dbi.connect()
+    weekList = queries.getWeekNum(conn)
+
+    if request.method == 'GET':
+        maxWeek = queries.commStatsMaxWeek(conn)['max(year_and_weekNum)']
+        total_avg = queries.commStatsTotalAvg(conn,maxWeek)['avg(total_spending)']
+        food_avg = queries.commStatsFoodAvg(conn,maxWeek)["avg(food_spending)"]
+        clothing_avg = queries.commStatsClothingAvg(conn,maxWeek)["avg(clothing_spending)"]
+        transp_avg = queries.commStatsTranspAvg(conn,maxWeek)["avg(transp_spending)"]
+        entert_avg = queries.commStatsEntertAvg(conn,maxWeek)["avg(entert_spending)"]
+        personal_avg = queries.commStatsPersonalAvg(conn,maxWeek)["avg(personal_spending)"]
+        miscel_avg = queries.commStatsMiscelAvg(conn,maxWeek)["avg(miscel_spending)"]
+
+        queries.commStatsInsert(conn,maxWeek,total_avg,food_avg,
+                                clothing_avg,transp_avg,entert_avg,
+                                personal_avg,miscel_avg)
+        commList = queries.commStatsGivenWeek(conn,maxWeek)
+
+        # if 'username' in session:
+        #     yourDataList = queries.dataEntryGivenWeek(conn,aid,maxWeek)
+
+        return render_template('commStats.html', commList = commList,
+                                method = 'GET', weekList = weekList)
+    else:
+        weekNum = request.form.get('menu-time')
+        total_avg = queries.commStatsTotalAvg(conn,weekNum)['avg(total_spending)']
+        food_avg = queries.commStatsFoodAvg(conn,weekNum)["avg(food_spending)"]
+        clothing_avg = queries.commStatsClothingAvg(conn,weekNum)["avg(clothing_spending)"]
+        transp_avg = queries.commStatsTranspAvg(conn,weekNum)["avg(transp_spending)"]
+        entert_avg = queries.commStatsEntertAvg(conn,weekNum)["avg(entert_spending)"]
+        personal_avg = queries.commStatsPersonalAvg(conn,weekNum)["avg(personal_spending)"]
+        miscel_avg = queries.commStatsMiscelAvg(conn,weekNum)["avg(miscel_spending)"]
+
+        queries.commStatsInsert(conn,weekNum,total_avg,food_avg,
+                                clothing_avg,transp_avg,entert_avg,
+                                personal_avg,miscel_avg)
+        commList = queries.commStatsGivenWeek(conn,weekNum)
+    
+        # if 'username' in session:
+        #     yourDataList = queries.dataEntryGivenWeek(conn,aid,weekNum)
+
+        return render_template('commStats.html', commList = commList,
+                                method = 'POST', weekList = weekList,
+                                weekNum = weekNum)
 
 @app.route('/logout/')
 def logout():

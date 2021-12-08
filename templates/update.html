@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+<h1>Update your spending goal</h1>
+
+  <form method=POST action="/update/{{username}}">
+    <table>
+      <tr>
+        <td><label for="goal">Your new spending goal</label></td>
+        <td><input id="goal" name='goal' value='{{goal}}'></td> 
+      </tr>
+    </table>
+    <input type="submit" name="submit" value="update">
+  </form>
+
+{% endblock %}
