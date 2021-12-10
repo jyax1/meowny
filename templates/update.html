@@ -1,12 +1,15 @@
+<!-- Angel Liu, Angel Xu, Jennifer Shan -->
+<!-- update.html -->
+
 {% extends "base.html" %}
 
 {% block main_content %}
-<h1>Update your spending goal</h1>
+<h1>Update Spending Goal</h1>
 
   <form method=POST action="/update/{{username}}">
     <table>
       <tr>
-        <td><label for="goal">Your new spending goal</label></td>
+        <td><label for="goal">new spending goal:</label></td>
         <td><input id="goal" name='goal' value='{{goal}}'></td> 
       </tr>
     </table>

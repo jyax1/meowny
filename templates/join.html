@@ -4,16 +4,17 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-<h1>Sign up for meowny here</h1>
+<h1>Sign up for Meowny</h1>
 
 <form method="POST" action=""> 
-    <label for="username"> Your name: </label>
+    <label for="username"> username: </label>
     <input type="text" name="username">
-    <label for="password1"> Your password: </label>
+    <label for="password1"> password: </label>
     <input type="text" name="password1">
-    <label for="password2"> Please enter the password again: </label>
+    <label for="password2"> password again: </label>
     <input type="text" name="password2">
-    <label for="goal"> What's your spending goal? (ex. spend $200 per week; spend less on entertainment) </label>
+    <br>
+    <label for="goal"> spending goal (spend $200 per week, spend less on entertainment, etc.): </label>
     <input type="text" name="goal">
     <input type="submit">
 </form>
