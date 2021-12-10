@@ -7,7 +7,7 @@
 <h1>Community Statistics Page</h1>
 
 <form method=POST action="">
-    <label for="menu-time">Select community statictis for another week:</label>
+    <label for="menu-time">Select community statistics for another week:</label>
     <select id="menu-time" name="menu-time">
       <option value="none">Choose One</option>
       {% for time in weekList %}
@@ -36,27 +36,28 @@
     </fieldset>
 </form>
 
-<!-- {% if 'username' not in session%}
+{% if 'username' not in session%}
   <p>Please <a href="{{ url_for('index') }}">log in</a> to see your own data!</p>
 {% elif 'username' in session %}
   <form>
     <fieldset>
-    {% if yourData is None %}
+    {% if yourData is none %}
       <legend>{{"Community averages for last week"}}</legend>
     {% else %}
       <legend>{{"Community averages for week {}".format(weekNum)}}</legend>
     {%endif%}
     <table>
-    <tr><td><label for="total">Your Total Spending: {{commList[0]['total_avg']}}</label></td>
-    <tr><td><label for="food">Your Food Spending: {{commList[0]['food_avg']}}</label></td>
-    <tr><td><label for="clothing">Your Clothing Spending: {{commList[0]['clothing_avg']}}</label></td>
-    <tr><td><label for="transp">Your Transportation Spending: {{commList[0]['transp_avg']}}</label></td>
-    <tr><td><label for="entert">Your Entertainment Spending: {{commList[0]['entert_avg']}}</label></td>
-    <tr><td><label for="personal">Your Personal Spending: {{commList[0]['personal_avg']}}</label></td>
-    <tr><td><label for="miscel">Your Miscellaneous Spending: {{commList[0]['miscel_avg']}}</label></td>
+    <tr><td><label for="total">Your Total Spending: {{yourList[0]['sum(total_spending)']}}</label></td>
+    <tr><td><label for="food">Your Food Spending: {{yourList[0]['sum(food_spending)']}}</label></td>
+    <tr><td><label for="clothing">Your Clothing Spending: {{yourList[0]['sum(clothing_spending)']}}</label></td>
+    <tr><td><label for="transp">Your Transportation Spending: {{yourList[0]['sum(transp_spending)']}}</label></td>
+    <tr><td><label for="entert">Your Entertainment Spending: {{yourList[0]['sum(entert_spending)']}}</label></td>
+    <tr><td><label for="personal">Your Personal Spending: {{yourList[0]['sum(personal_spending)']}}</label></td>
+    <tr><td><label for="miscel">Your Miscellaneous Spending: {{yourList[0]['sum(miscel_spending)']}}</label></td>
     </table>
     </fieldset>
   </form>
-{%endif%} -->
+{%endif%}
+
 
 {% endblock %}
