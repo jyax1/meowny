@@ -4,7 +4,6 @@
 from flask import (Flask, render_template, make_response, url_for, request,
                    redirect, flash, session, send_from_directory, jsonify)
 from werkzeug.utils import secure_filename
-from datetime import datetime
 app = Flask(__name__)
 
 # one or the other of these. Defaults to MySQL (PyMySQL)
@@ -26,34 +25,9 @@ app.secret_key = ''.join([ random.choice(('ABCDEFGHIJKLMNOPQRSTUVXYZ' +
 # This gets us better error messages for certain common request errors
 app.config['TRAP_BAD_REQUEST_ERRORS'] = True
 
-# for user to submit data into dataEntry table in meowny database
-def insert(aid, data):
-    '''Insert all the data for one entry given 
-       spendings from all categories
-    '''
-    now = datetime.now()
-    year_and_weekNum = str(now.year) + now.strftime("%U")
-    foodData = data['food']
-    clothingData = data['clothing']
-    transpData = data['transp'] 
-    entertData = data['entert'] 
-    personalData = data['personal'] 
-    miscelData = data['miscel'] 
-
-    total_spending = (float(foodData) + float(clothingData) + float(transpData) +
-                    float(entertData) + float(personalData) + float(miscelData))
-
-    conn = dbi.connect()
-    curs = dbi.dict_cursor(conn)
-    curs.execute('''insert into dataEntry (aid, dataTime, year_and_weekNum, 
-                    food_spending, clothing_spending, transp_spending, 
-                    entert_spending, personal_spending, miscel_spending, 
-                    total_spending) 
-                    values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)''',
-                    [aid, now, year_and_weekNum, foodData, clothingData, 
-                    transpData, entertData, personalData, miscelData, 
-                    total_spending])
-    conn.commit()
+@app.route('/welcome')
+def welcome():
+    return render_template('welcome.html', page_title = 'Welcome')
 
 # main page
 @app.route('/', methods=["GET", "POST"])
@@ -62,11 +36,11 @@ def index():
     if 'username' in session:
         username = session['username']
         aid = session['aid']
-        return redirect( url_for('user', username=username) )
+        return redirect(url_for('user', username=username))
     # if user is not logged in, the "home" nav bar will direct to login
     else:
         if request.method == 'GET':
-            return render_template('main.html',title='Hello')
+            return render_template('main.html',page_title='Hello')
         else:
             username = request.form.get('username')
             passwd = request.form.get('password')
@@ -79,7 +53,8 @@ def index():
                         [username])
             row = curs.fetchone()
             if row is None:
-                flash('you do not have an account. Please join first.')
+                flash('you do not have an account')
+                flash('please join first')
                 return redirect( url_for('index'))
             # compare the stored password with the one entered
             stored = row['password']
@@ -93,16 +68,17 @@ def index():
                 session['aid'] = row['aid']
                 session['logged_in'] = True
                 session['visits'] = 1
-                return redirect( url_for('user', username=username) )
+                return redirect(url_for('user', username = username))
             else:
-                flash('login incorrect. try again or join')
-                return redirect( url_for('index'))
+                flash('login incorrect')
+                flash('try again or join')
+                return redirect(url_for('index'))
 
 # create new user
 @app.route('/join/', methods=["GET", "POST"])
 def join():
     if request.method == 'GET':
-        return render_template('join.html',title='Hello')
+        return render_template('join.html', page_title = 'Hello')
     else:
         # get the entered value and check if two passwords match
         username = request.form.get('username')
@@ -111,7 +87,7 @@ def join():
         goal = request.form.get('goal')
         if passwd1 != passwd2:
             flash('passwords do not match')
-            return redirect( url_for('index'))
+            return redirect(url_for('index'))
         # hash the entered value
         hashed = bcrypt.hashpw(passwd1.encode('utf-8'),
                             bcrypt.gensalt())
@@ -126,7 +102,7 @@ def join():
             conn.commit()
         except Exception as err:
         # if username is taken, redirect to the login page
-            flash('That username is taken: {}'.format(repr(err)))
+            flash('that username is taken: {}'.format(repr(err)))
             return redirect(url_for('index'))
         # get the id and update session data
         curs.execute('select last_insert_id()')
@@ -135,7 +111,7 @@ def join():
         session['aid'] = aid
         session['logged_in'] = True
         session['visits'] = 1
-        return redirect( url_for('user', username=username) )
+        return redirect(url_for('user', username = username))
 
 # user's personal page
 @app.route('/user/<username>', methods=["GET", "POST"])
@@ -148,10 +124,11 @@ def user(username):
             session['visits'] = 1+int(session['visits'])
         # redirect to login if no session data found
         else:
-            flash('You are not logged in. Please log in or sign up!')
+            flash('you are not logged in')
+            flash('please log in or sign up')
             return redirect(url_for('index'))
     except Exception as err:
-        flash('There is an error '+str(err))
+        flash('there is an error '+str(err))
         return redirect(url_for('index'))
 
     conn = dbi.connect()
@@ -161,7 +138,7 @@ def user(username):
     if request.method == 'GET': 
         conn = dbi.connect()
         dataList = queries.dataEntryGivenAID(conn, aid)
-        return render_template('personalPg.html', title='inserting spendings',
+        return render_template('personalPg.html', page_title = 'inserting spendings',
                                 username = username, goal = goal,
                                 dataList = dataList)
     else:
@@ -170,16 +147,16 @@ def user(username):
             if all(value == "" for value in data.values()):
                 flash('please submit spendings')
                 raise Exception
-            insert(aid, data)
             conn = dbi.connect()
+            queries.insert(conn, aid, data)
             dataList = queries.dataEntryGivenAID(conn, aid)
             flash('thank you for submitting your weekly spendings')
-            return render_template('personalPg.html', title='inserting spendings',
+            return render_template('personalPg.html', page_title ='Inserting Spendings',
                                     username = username, dataList = dataList,
                                     goal = goal)
         except Exception as err:
             flash('form submission incomplete')
-            return render_template('personalPg.html', title='inserting spendings',
+            return render_template('personalPg.html', page_title = 'Inserting Spendings',
                                     username = username)
 
 @app.route('/update/<username>', methods=['GET','POST'])
@@ -194,10 +171,11 @@ def update(username):
             aid = session['aid']
         # redirect to login if no session data found
         else:
-            flash('You are not logged in. Please log in or sign up!')
+            flash('you are not logged in')
+            flash('please log in or sign up')
             return redirect(url_for('index'))
     except Exception as err:
-        flash('There is an error '+str(err))
+        flash('there is an error '+str(err))
         return redirect(url_for('index'))
 
     if request.method == 'GET':
@@ -209,7 +187,7 @@ def update(username):
         newGoal = request.form.get('goal')
         conn = dbi.connect()
         queries.updateGoal(conn,aid,newGoal)
-        flash('Your goal was updated successfully')
+        flash('your goal was updated successfully')
         return redirect(url_for('update', 
                         username = username))
 
@@ -219,6 +197,15 @@ def commStats():
     # the percentile the user is in, and hopefully some graphs
     conn = dbi.connect()
     weekList = queries.getWeekNum(conn)
+
+    if 'username' in session:
+        username = session['username']
+        aid = session['aid']
+        # redirect to login if no session data found
+    else:
+        flash('you are not logged in')
+        flash('please log in or sign up')
+        return redirect(url_for('index'))
 
     if request.method == 'GET':
         maxWeek = queries.commStatsMaxWeek(conn)['max(year_and_weekNum)']
@@ -235,11 +222,12 @@ def commStats():
                                 personal_avg,miscel_avg)
         commList = queries.commStatsGivenWeek(conn,maxWeek)
 
-        # if 'username' in session:
-        #     yourDataList = queries.dataEntryGivenWeek(conn,aid,maxWeek)
+        if 'username' in session:
+             yourList = queries.dataEntryGivenWeek(conn,aid,maxWeek)
 
         return render_template('commStats.html', commList = commList,
-                                method = 'GET', weekList = weekList)
+                                method = 'GET', weekList = weekList,
+                                yourList = yourList)
     else:
         weekNum = request.form.get('menu-time')
         total_avg = queries.commStatsTotalAvg(conn,weekNum)['avg(total_spending)']
@@ -255,12 +243,12 @@ def commStats():
                                 personal_avg,miscel_avg)
         commList = queries.commStatsGivenWeek(conn,weekNum)
     
-        # if 'username' in session:
-        #     yourDataList = queries.dataEntryGivenWeek(conn,aid,weekNum)
+        if 'username' in session:
+            yourList = queries.dataEntryGivenWeek(conn,aid,weekNum)
 
         return render_template('commStats.html', commList = commList,
                                 method = 'POST', weekList = weekList,
-                                weekNum = weekNum)
+                                weekNum = weekNum, yourList = yourList)
 
 @app.route('/logout/')
 def logout():
@@ -269,11 +257,12 @@ def logout():
         session.pop('username')
         session.pop('aid')
         session.pop('logged_in')
-        flash('You are logged out')
+        flash('you are logged out')
         return redirect(url_for('index'))
     else:
-        flash('you are not logged in. Please login or join')
-        return redirect( url_for('index') )
+        flash('you are not logged in')
+        flash('please log in or join')
+        return redirect(url_for('index'))
 
 @app.before_first_request
 def init_db():

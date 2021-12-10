@@ -2,6 +2,35 @@
 # queries.py
 
 import cs304dbi as dbi
+from datetime import datetime
+
+# for user to submit data into dataEntry table in meowny database
+def insert(conn, aid, data):
+    '''Insert all the data for one entry given 
+       spendings from all categories
+    '''
+    now = datetime.now()
+    year_and_weekNum = str(now.year) + now.strftime("%U")
+    foodData = data['food']
+    clothingData = data['clothing']
+    transpData = data['transp'] 
+    entertData = data['entert'] 
+    personalData = data['personal'] 
+    miscelData = data['miscel'] 
+
+    total_spending = (float(foodData) + float(clothingData) + float(transpData) +
+                    float(entertData) + float(personalData) + float(miscelData))
+
+    curs = dbi.dict_cursor(conn)
+    curs.execute('''insert into dataEntry (aid, dataTime, year_and_weekNum, 
+                    food_spending, clothing_spending, transp_spending, 
+                    entert_spending, personal_spending, miscel_spending, 
+                    total_spending) 
+                    values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)''',
+                    [aid, now, year_and_weekNum, foodData, clothingData, 
+                    transpData, entertData, personalData, miscelData, 
+                    total_spending])
+    conn.commit()
 
 # get aid given username
 def aidGivenUsername(conn,username):
