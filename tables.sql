@@ -6,7 +6,7 @@ drop table if exists user;
 
 create table user (
    aid int auto_increment,
-   name varchar(50) not null,
+   name varchar(50) not null unique,
    password varchar(100),
    goal varchar(300),
    primary key (aid),
