@@ -146,7 +146,7 @@ def pic(aid):
     row = curs.fetchone()
     return send_from_directory(app.config['UPLOADS'],row['filename'])
 
-@app.route('/user/<username>', methods=["GET", "POST"])
+@app.route('/user/<username>', methods = ["GET", "POST"])
 def user(username):
     '''User's personal page with data-insertion form and their
     spending trajectory'''
