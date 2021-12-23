@@ -1,5 +1,6 @@
 use meowny_db;
 
+drop table if exists picfile;
 drop table if exists commStats;
 drop table if exists dataEntry;
 drop table if exists user;
@@ -13,6 +14,15 @@ create table user (
    INDEX (aid)
 )
 ENGINE = InnoDB;
+
+create table picfile (
+    aid int primary key,
+    filename varchar(50),
+    foreign key (aid) references user(aid) 
+        on delete cascade 
+        on update cascade
+);
+describe picfile;
 
 create table dataEntry (
    aid int,

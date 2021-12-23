@@ -6,16 +6,17 @@
 {% block main_content %}
 <h1>Sign up for Meowny</h1>
 
-<form method="POST" action=""> 
-    <label for="username"> username: </label>
-    <input type="text" name="username">
-    <label for="password1"> password: </label>
-    <input type="text" name="password1">
-    <label for="password2"> password again: </label>
-    <input type="text" name="password2">
-    <br>
-    <label for="goal"> spending goal (spend $200 per week, spend less on entertainment, etc.): </label>
-    <input type="text" name="goal">
+<form method="POST" action="{{ url_for('join') }}" enctype="multipart/form-data"> 
+    <p><label for="username"> username: </label>
+    <input type="text" name="username"></p>
+    <p><label for="password1"> password: </label>
+    <input type="text" name="password1"></p>
+    <p><label for="password2"> password again: </label>
+    <input type="text" name="password2"><br></p>
+    <p><label for="goal"> spending goal (spend $200 per week, spend less on entertainment, etc.) </label>
+    <input type="text" name="goal"></p>
+    <p><label for="profilepic">Please upload your profile picture: </label>
+    <input type="file" name="pic"></p>
     <input type="submit">
 </form>
 

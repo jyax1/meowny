@@ -30,12 +30,17 @@ h2 {
 
 h3, h4 {
     color: black;
-    background-color: rgb(205, 121, 62);
+    background-color: rgb(205, 121, 62)
 }
-    
+
+table, td, th {
+    border-spacing: 15px;
+    text-align: left;
+}
+
 /* for a simple navbar. Talk to Scott if you want drop-downs. */
 nav > ul {
-    display: flex;
+    display: inline-flex;
     flex-direction: row;
 }
 

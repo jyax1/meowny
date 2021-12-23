@@ -7,7 +7,7 @@
 <h1>Log in to Meowny</h1>
 <p>Please log in or <a href="{{ url_for('join') }}">sign up</a> if you don't have an account.</p>
 
-<form method="POST" action=""> 
+<form method="POST" action="{{ url_for('index') }}"> 
     <label for="username"> username: </label>
     <input type="text" name="username">
     <label for="password"> password: </label>

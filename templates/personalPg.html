@@ -6,18 +6,17 @@
 {% block main_content %}
 
 <h1>{{username}}'s personal page <button> <a href="{{ url_for('logout') }}">logout</a> </button> </h1>
-
+<img src="{{ url_for('pic',aid = aid) }}" style="height:150px; display:inline" >
 <h2>Your current spending goal is: {{goal}}</h2>
-
-<p>Click here to <a href="{{ url_for('update', username = username) }}">update your goal.</a></p>
+<p>Click here to <a href="{{ url_for('update', username = username) }}">update your spending goal or profile picture.</a></p>
 
 <h3>Please enter your spendings in our CATegories ฅ•ω•ฅ:</h3>
 
-<form method=post action="">
+<form method=post action="{{ url_for('user', username = username) }}">
 
     <fieldset>
     <legend>Enter spendings:</legend>
-    <table>
+    <table style="width:100%">
     <tr><td><label for="food" accesskey="1">(1) Food:</label></td>
         <td><input id="food" type="number" step="0.1" name="food"></td></tr>
     <tr><td><label for="clothing" accesskey="2">(2) Clothing:</label></td>
@@ -37,30 +36,31 @@
 
 </form>
 
-<h3>View Your Spending History Below ฅ•ω•ฅ: </h3>
-<!-- <form method=POST action="">
-    <label for="menu-time">Select a time period of your history:</label>
-    <select id="menu-tt" name="menu-tt">
-      <option value="none">Choose One</option>
-      {% for movie in movies %}
-        <option value={{movie.tt}}>{{movie.title}}</option>
-      {% endfor %}
-    </select>
-    <input type="submit" name="submit-btn" value="Choose">
-</form> -->
+<h3>View your history below ฅ•ω•ฅ: </h3>
 
-<p><label for="data"></label>
-{% for data in dataList %}
-    <li>Entry at {{data.dataTime}}
-        records $ spent in the following area:
-        food: {{data.food_spending}},
-        clothing: {{data.clothing_spending}},
-        transportation: {{data.transp_spending}},
-        entertainment: {{data.entert_spending}},
-        personal expenses: {{data.personal_spending}},
-        miscellaneous: {{data.miscel_spending}}
-        total: {{data.total_spending}}</li>
-{%endfor%} 
-</p>
+<table style="width:100%">
+    <tr>
+      <th>Time of Entry</th>
+      <th>Food</th>
+      <th>Clothing</th>
+      <th>Transportation</th>
+      <th>Entertainment</th>
+      <th>Personal</th>
+      <th>Miscellaneous</th>
+      <th>In Total</th>
+    </tr>
+    {% for data in dataList %}
+        <tr>
+        <td>{{data.dataTime}}</td>
+        <td>${{data.food_spending}}</td>
+        <td>${{data.clothing_spending}}</td>
+        <td>${{data.transp_spending}}</td>
+        <td>${{data.entert_spending}}</td>
+        <td>${{data.personal_spending}}</td>
+        <td>${{data.miscel_spending}}</td>
+        <td>${{data.total_spending}}</td>
+        </tr>
+    {%endfor%} 
+  </table>
 
 {% endblock %}

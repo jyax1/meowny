@@ -1,16 +1,17 @@
-<!-- Angel Liu, Angel Xu, Jennifer Shan -->
-<!-- update.html -->
-
 {% extends "base.html" %}
 
 {% block main_content %}
-<h1>Update Spending Goal</h1>
+<h1>Update your spending goal</h1>
 
-  <form method=POST action="/update/{{username}}">
+  <form method=POST action="{{url_for('update', username=username)}}" enctype="multipart/form-data">
     <table>
       <tr>
-        <td><label for="goal">new spending goal:</label></td>
+        <td><label for="goal">Your new spending goal</label></td>
         <td><input id="goal" name='goal' value='{{goal}}'></td> 
+      </tr>
+      <tr>
+        <td><label for="profilepic">Please update your profile picture: </label></td>
+        <td><input type="file" name="pic"></td>
       </tr>
     </table>
     <input type="submit" name="submit" value="update">

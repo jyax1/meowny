@@ -4,10 +4,11 @@
 {% extends "base.html" %}
 
 {% block main_content %}
-<h1>Community Statistics Page</h1>
+<h1>Community Statistics</h1>
 
-<form method=POST action="">
-    <label for="menu-time">Select community statistics for another week:</label>
+<form method=POST action="{{ url_for('commStats') }}">
+    <label for="menu-time" style="font-size: large;">Select community statistics for another week 
+      (the first four digit is year number, and the last two represents the week number in a year):</label>
     <select id="menu-time" name="menu-time">
       <option value="none">Choose One</option>
       {% for time in weekList %}
@@ -18,46 +19,49 @@
 </form>
 
 <form>
-    <fieldset>
+    <fieldset style="margin-top: 20px;">
     {% if method == "GET"%}
-      <legend>{{"Community averages for last week"}}</legend>
+      <legend>{{"Community averages and your data for last week"}}</legend>
     {% elif method == "POST" %}
-      <legend>{{"Community averages for week {}".format(weekNum)}}</legend>
+      <legend>{{"Community averages and your data for week {}".format(weekNum)}}</legend>
     {%endif%}
-    <table>
-    <tr><td><label for="total">Total Spending Average: {{commList[0]['total_avg']}}</label></td>
-    <tr><td><label for="food">Food Spending Average: {{commList[0]['food_avg']}}</label></td>
-    <tr><td><label for="clothing">Clothing Spending Average: {{commList[0]['clothing_avg']}}</label></td>
-    <tr><td><label for="transp">Transportation Spending Average: {{commList[0]['transp_avg']}}</label></td>
-    <tr><td><label for="entert">Entertainment Spending Average: {{commList[0]['entert_avg']}}</label></td>
-    <tr><td><label for="personal">Personal Spending Average: {{commList[0]['personal_avg']}}</label></td>
-    <tr><td><label for="miscel">Miscellaneous Spending Average: {{commList[0]['miscel_avg']}}</label></td>
+    <table style="width:100%">
+    <tr>
+      <th>CATegories</th>
+      <th>Community AVG</th>
+      <th>Your Spending</th>
+    </tr>
+    <tr><td><label for="total">Total Spending</label></td> 
+        <td><label for="total">${{commList[0]['total_avg']}}</label></td> 
+        <td><label for="total">${{yourList[0]['sum(total_spending)']}}</label></td>
+    <tr><td><label for="food">Food Spending</label></td>
+        <td><label for="food">${{commList[0]['food_avg']}}</label></td>
+        <td><label for="food">${{yourList[0]['sum(food_spending)']}}</label></td>
+    <tr><td><label for="clothing">Clothing Spending</label></td>
+        <td><label for="clothing">${{commList[0]['clothing_avg']}}</label></td>
+        <td><label for="clothing">${{yourList[0]['sum(clothing_spending)']}}</label></td>
+    <tr><td><label for="transp">Transportation Spending</label></td>
+        <td><label for="transp">${{commList[0]['transp_avg']}}</label></td>
+        <td><label for="transp">${{yourList[0]['sum(transp_spending)']}}</label></td>
+    <tr><td><label for="entert">Entertainment Spending</label></td>
+        <td><label for="entert">${{commList[0]['entert_avg']}}</label></td>
+        <td><label for="entert">${{yourList[0]['sum(entert_spending)']}}</label></td>
+    <tr><td><label for="personal">Personal Spending</label></td>
+        <td><label for="personal">${{commList[0]['personal_avg']}}</label></td>
+        <td><label for="personal">${{yourList[0]['sum(personal_spending)']}}</label></td>
+    <tr><td><label for="miscel">Miscellaneous Spending</label></td>
+        <td><label for="miscel">${{commList[0]['miscel_avg']}}</label></td>
+        <td><label for="miscel">${{yourList[0]['sum(miscel_spending)']}}</label></td>
     </table>
     </fieldset>
 </form>
 
-{% if 'username' not in session%}
-  <p>Please <a href="{{ url_for('index') }}">log in</a> to see your own data!</p>
-{% elif 'username' in session %}
-  <form>
-    <fieldset>
-    {% if yourData is none %}
-      <legend>{{"Community averages for last week"}}</legend>
-    {% else %}
-      <legend>{{"Community averages for week {}".format(weekNum)}}</legend>
-    {%endif%}
-    <table>
-    <tr><td><label for="total">Your Total Spending: {{yourList[0]['sum(total_spending)']}}</label></td>
-    <tr><td><label for="food">Your Food Spending: {{yourList[0]['sum(food_spending)']}}</label></td>
-    <tr><td><label for="clothing">Your Clothing Spending: {{yourList[0]['sum(clothing_spending)']}}</label></td>
-    <tr><td><label for="transp">Your Transportation Spending: {{yourList[0]['sum(transp_spending)']}}</label></td>
-    <tr><td><label for="entert">Your Entertainment Spending: {{yourList[0]['sum(entert_spending)']}}</label></td>
-    <tr><td><label for="personal">Your Personal Spending: {{yourList[0]['sum(personal_spending)']}}</label></td>
-    <tr><td><label for="miscel">Your Miscellaneous Spending: {{yourList[0]['sum(miscel_spending)']}}</label></td>
-    </table>
-    </fieldset>
-  </form>
-{%endif%}
-
+<br>
+<div id='chart' class='chart'”></div>
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script type='text/javascript'>
+  var graphs = {{graphJSON | safe}};
+  Plotly.plot('chart',graphs,{});
+</script>
 
 {% endblock %}
